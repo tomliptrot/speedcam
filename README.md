@@ -6,10 +6,9 @@ speedcam is a Python library for monitors traffic speed.
 
 ## Installation
 
-TODO: Use the package manager [pip](https://pip.pypa.io/en/stable/) to install speedcam.
-
 ```bash
-pip install speedcam
+git clone 
+poetry install && poetry shell
 ```
 
 ## Usage

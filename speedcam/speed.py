@@ -1,1 +1,0 @@
-# estimate the speed of object
