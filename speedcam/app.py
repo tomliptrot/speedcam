@@ -5,17 +5,22 @@
 # and here https://github.com/mpimentel04/rtsp_fastapi
 
 import typer
+from pathlib import Path
+from typing import Optional
+from speedcam.video import Video, detect_movement
 
 
 cli = typer.Typer()
 
 @cli.command()
-def start():
-    """
-    Start the server
-    """
-    typer.echo("Starting server")
-    #uvicorn.run(app, host="0.0.0.0", port=HTTP_PORT, access_log=False)
+def scan(file: Path):
+    typer.echo(f"Scanning {file}")
+    vid = Video.load(file)
+    movement , video_with_rect, grays, threshs = detect_movement(vid)
+    print(movement.x.diff())
+    print((movement.x + movement.w).diff())
+    video_with_rect.save("test.mp4")
+    
 
 
 @cli.command()
