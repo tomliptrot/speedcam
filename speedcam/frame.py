@@ -9,10 +9,10 @@ class Frame:
         d = cv2.absdiff(self.image, other.image)
         return Frame(d)
 
-    def threshold(self, threshold=30) -> "Frame":
+    def threshold(self, threshold=10) -> "Frame":
         _, thresh = cv2.threshold(self.image, threshold, 255, cv2.THRESH_BINARY)
         # This dilates with two iterations
-        thresh = cv2.dilate(thresh, None, iterations=2)
+        thresh = cv2.dilate(thresh, None, iterations=5)
         return Frame(thresh)
 
     def gray(self) -> "Frame":
@@ -33,9 +33,9 @@ class Frame:
         contours, hierarchy = cv2.findContours(self.image,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
         return contours
 
-    def find_largest_contour(self):
+    def find_largest_contour(self, min_area = 10000):
         contours = self.find_contours()
-        biggest_size = 0
+        biggest_size = min_area
         largest_contour = None
 
         for i,cntr in enumerate(contours):
@@ -45,6 +45,23 @@ class Frame:
                 largest_contour = cntr
                 biggest_size = area 
         return largest_contour
+
+    def contour_summary(self, contour):
+        summary = {}
+
+        x, y, w, h = cv2.boundingRect(contour)
+        summary["area"] = cv2.contourArea(contour)
+        summary["x"] = x
+        summary["y"] = y
+        summary["w"] = w
+        summary["h"] = h
+
+        moments = cv2.moments(contour)
+        summary["centre_x"] = int(moments["m10"] / moments["m00"])
+        summary["centre_y"] = int(moments["m01"] / moments["m00"])
+        # else:
+        # with_rectangle.append(frame)
+        return summary
 
 
 
