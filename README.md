@@ -14,7 +14,7 @@ poetry install && poetry shell
 ## Usage
 
 ```bash
-speedcam start
+speedcam scan <video.mp4>
 ```
 
 ## Contributing
