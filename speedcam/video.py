@@ -1,6 +1,9 @@
 import math
+
 import cv2
 import pandas as pd
+import typer
+
 from speedcam.frame import Frame
 
 
@@ -70,40 +73,65 @@ def detect_movement(video: Video):
         if largest_contour is not None:
             threshs.append(thresh)
             box = frame.contour_summary(largest_contour)
-            box['frame_number'] = i
+            box["frame_number"] = i
             movement.append(box)
             rectangle_frame = frame.add_rectangle_from_contour(largest_contour)
             with_rectangle.append(rectangle_frame)
     # add rectangle to frames?
     movement = pd.DataFrame(movement)
-    video_with_rect =  Video(with_rectangle, video.fps)
-    grays =   Video(grays, video.fps)
-    threshs =    Video(threshs, video.fps)
-    return movement , video_with_rect, grays, threshs
+    video_with_rect = Video(with_rectangle, video.fps)
+    grays = Video(grays, video.fps)
+    threshs = Video(threshs, video.fps)
+    return movement, video_with_rect, grays, threshs
 
-def calibrate_distance(self):
+
+loc = []
+
+
+def on_mouse(event, x, y, flags, param):
+    global loc
+    if event == cv2.EVENT_LBUTTONDOWN:
+        # draw circle here (etc...)
+        print(f"{x=}, {y=}")
+        print(loc)
+        loc.append((x, y))
+
+
+def calibrate_distance(video: Video, i_frame=0):
     """sets a scale on the video based on a know distance in a fixed mage"""
-    calib = {}
     # get a frame from the video (first frame?)
-
-    # show it
-
+    frame: Frame = video[i_frame]
+    cv2.namedWindow("calibration")
+    cv2.setMouseCallback("calibration", on_mouse)
+    while len(loc) < 2:
+        cv2.imshow("calibration", frame.image)
+        k = cv2.waitKey(20) & 0xFF
+        if k == 27:
+            break
+        if len(loc) > 1:
+            cv2.destroyAllWindows()
+            break
+        # show points on image + line
+        # press key when done?
+    print(loc)
+    d = math.dist(loc[0], loc[1])
+    print(f"Distance = {d} pixels")
+    # actual_distance = typer.prompt("What's the actual disatnce?")
     # ask user to click on calibration points
-    calib["x1"] = x1
-    calib["x2"] = x2
-    calib["y1"] = y1
-    calib["y2"] = y2
-    calib["dist_image"] = math.dist([x1, y1], [x2, y2])
+    # calib["x1"] = x1
+    # calib["x2"] = x2
+    # calib["y1"] = y1
+    # calib["y2"] = y2
+    # calib["dist_image"] = math.dist([x1, y1], [x2, y2])
 
-    # ask user for disatnce between points
+    # # ask user for disatnce between points
 
-    calib["distance"] = d_real
-    calib["scale"] = calib["distance"] / calib["dist_image"]
+    # calib["distance"] = d_real
+    # calib["scale"] = calib["distance"] / calib["dist_image"]
 
-    self.calib = calib
+    # self.calib = calib
 
 
 def estimate_speed(self):
     """estimate the speed of the largest moving object(s)?"""
     pass
-
